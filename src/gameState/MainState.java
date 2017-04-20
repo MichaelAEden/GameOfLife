@@ -2,6 +2,7 @@ package gameState;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -41,7 +42,7 @@ public class MainState extends GameState
 
 	public void draw(Graphics2D g) 
 	{
-		g.setColor(Color.GRAY);
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
 		cellMap.draw(g);
 	}
@@ -51,9 +52,9 @@ public class MainState extends GameState
 		if(k == KeyEvent.VK_P) update = !update;
 	}
 
-	public void mouseClicked(MouseEvent m) 
-	{
-		cellMap.spawnCellOnMouseClick(cellMap.getCellFromMouse(m).x, cellMap.getCellFromMouse(m).y, !cellMap.getCellAt(cellMap.getCellFromMouse(m).x, cellMap.getCellFromMouse(m).y));
+	public void mouseClicked(MouseEvent m) {
+		Point cell = cellMap.getCellFromMouse(m);
+		cellMap.spawnCellNow(cell.x, cell.y);
 	}
 
 	@Override
@@ -71,7 +72,7 @@ public class MainState extends GameState
 	@Override
 	public void mouseDragged(MouseEvent m)
 	{
-		cellMap.spawnCellOnMouseClick(cellMap.getCellFromMouse(m).x, cellMap.getCellFromMouse(m).y, true);
+		mouseClicked(m);
 	}
 
 	@Override

@@ -6,7 +6,11 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import main.GamePanel;
+import ui.Settings;
 
+/**
+ * A map of living and dead cells.
+ */
 public class CellMap 
 {	
 	private int horizontalIndent;
@@ -14,14 +18,20 @@ public class CellMap
 	private int width;
 	private int height;
 	
-	private boolean[][] map;
-	private boolean[][] newMap;
+	private Cell[][] map;
 	private int columns;
 	private int rows;
 	
 	private int cellWidth;
 	private int cellHeight;
 	
+	/**
+	 * Constructor.
+	 *
+	 * @param cellWidth 	Width of each cell in pixels
+	 * @param width			Width of map, in cells
+	 * @param height		Height of map, in cells
+	 */
 	public CellMap(int cellWidth, int width, int height)
 	{	
 		this.width = width;
@@ -37,122 +47,135 @@ public class CellMap
 		init();
 	}
 	
-	private void init()
-	{	
-		map = new boolean[columns][rows];
-		newMap = new boolean[columns][rows];
+	/**
+	 * Initializes a blank cell map.
+	 */
+	private void init() {	
+		map = new Cell[columns][rows];
 		for(int x = 0; x < columns; x++)
 		{
-			map[x] = new boolean[rows];
-			newMap[x] = new boolean[rows];
+			map[x] = new Cell[rows];
+			for(int y = 0; y < rows; y++) {
+				map[x][y] = new Cell();
+			}
 		}
-	}
-	
-	public void spawnCellOnMouseClick(int x, int y, boolean cell) //oldMap
-	{
-		if (!isInBounds(x, y)) return;
-		map[x][y] = cell;
-	}
-	public boolean getCellAt(int x, int y) //oldMap
-	{
-		if (!isInBounds(x, y)) return false;
-		return map[x][y];
-	}
-	public void setCellAt(int x, int y, boolean cell) //newMap
-	{
-		if (!isInBounds(x, y)) return;
-		newMap[x][y] = cell;
-	}
-	
-	public boolean isInBounds(int x, int y)
-	{
-		return (x < columns && y < rows) && (x >= 0 && y >= 0);
 	}
 	
 	public void update() 
-	{
-		clone(map, newMap);
-		for(int x = 0; x < columns; x++)
-		{
-			for(int y = 0; y < rows; y++)
-			{
-				if (!getCellAt(x, y) && willCellSpawnAt(x, y))
-				{
-					setCellAt(x, y, true);
+	{	
+		for (int x = 0; x < columns; x++) {
+			for (int y = 0; y < rows; y++) {
+				if (!isActiveCellAt(x, y) && shouldSpawnCellAt(x, y)) {
+					spawnCellNextCycle(x, y);
+				}
+				else if (isActiveCellAt(x, y) && shouldKillCellAt(x, y)) {
+					killCellNextCycle(x, y);
 				}
 			}
 		}
-		for(int x = 0; x < columns; x++)
-		{
-			for(int y = 0; y < rows; y++)
-			{
-				if (getCellAt(x, y) && willCellDieAt(x, y))
-				{
-					setCellAt(x, y, false);
-				}
-			}
-		}
-		clone(newMap, map);
-	}
-	
-	private void clone(boolean map1[][], boolean map2[][])
-	{
-		for(int x = 0; x < columns; x++)
-		{
-			for(int y = 0; y < rows; y++)
-			{
-				map2[x][y] = map1[x][y];
+		
+		for (int x = 0; x < columns; x++) {
+			for (int y = 0; y < rows; y++) {
+				updateCellAt(x, y);
 			}
 		}
 	}
 	
-	private boolean willCellSpawnAt(int x, int y) //oldMap
-	{
-		return (getNumberOfAdjacentCells(x, y) == 3);
+	/*
+	 * Returns whether cell at the given coordinates should be spawned next iteration
+	 */
+	private boolean shouldSpawnCellAt(int x, int y) {
+		return (getNumberOfAdjacentCells(x, y) <= Settings.NEIGHBOURS_CAUSING_BIRTH_MAX &&
+				getNumberOfAdjacentCells(x, y) >= Settings.NEIGHBOURS_CAUSING_BIRTH_MIN);	
 	}
-	private boolean willCellDieAt(int x, int y) //oldMap
-	{
-		return (getNumberOfAdjacentCells(x, y) <= 1 || getNumberOfAdjacentCells(x, y) >= 4);
+	
+	/*
+	 * Returns whether cell at the given coordinates should die next iteration
+	 */
+	private boolean shouldKillCellAt(int x, int y) {
+		return (getNumberOfAdjacentCells(x, y) >= Settings.NEIGHBOURS_CAUSING_DEATH_MAX ||
+				getNumberOfAdjacentCells(x, y) <= Settings.NEIGHBOURS_CAUSING_DEATH_MIN);
 	}
-	private int getNumberOfAdjacentCells(int x, int y) //oldMap
-	{
+	
+	/*
+	 * Gets the number of adjacent live cells to determine if a cell should live or die
+	 */
+	private int getNumberOfAdjacentCells(int x, int y) {
 		int adjacentCells = 0;
-		for(int tx = x - 1; tx <= x + 1; tx++)
-		{
-			for(int ty = y - 1; ty <= y + 1; ty++)
-			{
-				if(tx == x && ty == y) continue;
-				if (getCellAt(tx, ty))
-				{
+		for (int tx = x - 1; tx <= x + 1; tx++) {
+			for (int ty = y - 1; ty <= y + 1; ty++) {
+				if (tx == x && ty == y) continue;
+				if (isActiveCellAt(tx, ty)) {
 					adjacentCells++;
 				}
 			}
 		}
+		
 		return adjacentCells;
 	}
 	
 	public void draw(Graphics2D g)
 	{
-		g.setColor(Color.YELLOW);
-		for(int x = 0; x < columns; x++)
-		{
-			for(int y = 0; y < rows; y++)
-			{
-				if (getCellAt(x, y))
-				{
+		for(int x = 0; x < columns; x++) {
+			for(int y = 0; y < rows; y++) {
+				if (isActiveCellAt(x, y)) {
+					g.setColor(this.getCellColourAt(x, y));
 					g.fillRect(this.getPixelFromCell(x, y).x, getPixelFromCell(x, y).y, cellWidth, cellHeight);
 				}
 			}
 		}
-		g.setColor(new Color(50, 50, 50));
-		for(int x = 0; x <= columns; x++)
-		{
-			g.drawLine(getPixelFromCell(x, 0).x, verticalIndent, getPixelFromCell(x, 0).x, verticalIndent + height);
+		
+		if (Settings.SHOW_GRID) {
+			g.setColor(new Color(50, 50, 50));
+			for(int x = 0; x <= columns; x++)
+			{
+				g.drawLine(getPixelFromCell(x, 0).x, verticalIndent, getPixelFromCell(x, 0).x, verticalIndent + height);
+			}
+			for(int y = 0; y <= rows; y++)
+			{
+				g.drawLine(horizontalIndent, getPixelFromCell(0, y).y, horizontalIndent + width, getPixelFromCell(0, y).y);
+			}
 		}
-		for(int y = 0; y <= rows; y++)
-		{
-			g.drawLine(horizontalIndent, getPixelFromCell(0, y).y, horizontalIndent + width, getPixelFromCell(0, y).y);
-		}
+	}
+
+	
+	
+	/* * * * * * * * * * * * * *
+	 * 		GETTERS AND SETTERS
+	 * * * * * * * * * * * * * */
+	
+	public void spawnCellNow(int x, int y) {
+		if (isActiveCellAt(x, y)) return;
+		map[x][y].spawn();
+	}
+	public void spawnCellNextCycle(int x, int y) {
+		if (isActiveCellAt(x, y)) return;
+		map[x][y].spawnNextCycle();
+	}
+	public void killCellNow(int x, int y) {
+		if (!isActiveCellAt(x, y)) return;
+		map[x][y].kill();
+	}
+	public void killCellNextCycle(int x, int y) {
+		if (!isActiveCellAt(x, y)) return;
+		map[x][y].killNextCycle();
+	}
+	
+	public void updateCellAt(int x, int y) {
+		map[x][y].update(this);
+	}
+	
+	public Color getCellColourAt(int x, int y) {
+		if (!isInBounds(x, y)) return Settings.DEFAULT_TABLE_COLOUR;
+		return map[x][y].getColour();
+	}
+	public boolean isActiveCellAt(int x, int y) {
+		if (!isInBounds(x, y)) return false;
+		return map[x][y].isActive();
+	}
+	
+	public boolean isInBounds(int x, int y) {
+		return (x < columns && y < rows) && (x >= 0 && y >= 0);
 	}
 	
 	public Point getCellFromMouse(MouseEvent m)
