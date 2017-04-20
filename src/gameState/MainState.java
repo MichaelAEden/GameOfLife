@@ -14,7 +14,7 @@ public class MainState extends GameState {
 	
 	private CellMap cellMap;
 	
-	private boolean update;
+	private boolean isPaused;
 	private int updateRate = 15;
 	private int updateTick;
 
@@ -22,11 +22,11 @@ public class MainState extends GameState {
 	public MainState(GameStateManager gsm) {
 		super(gsm);
 		
-		cellMap = new CellMap(25, GamePanel.WIDTH, GamePanel.HEIGHT);
+		cellMap = new CellMap(2, GamePanel.WIDTH, GamePanel.HEIGHT);
 	}
 
 	public void update() {
-		if(update)
+		if (isPaused)
 		{
 			updateTick--;
 			if(updateTick <= 0)
@@ -44,7 +44,17 @@ public class MainState extends GameState {
 	}
 
 	public void keyPressed(int k) {
-		if(k == KeyEvent.VK_P) update = !update;
+		if(k == KeyEvent.VK_P) isPaused = !isPaused;
+		if(k == KeyEvent.VK_RIGHT) {
+			if (updateRate >= 3) {
+				updateRate--;
+			}
+		}
+		if(k == KeyEvent.VK_LEFT) {
+			if (updateRate <= 60) {
+				updateRate++;
+			}
+		}
 	}
 
 	public void mouseClicked(MouseEvent m) {

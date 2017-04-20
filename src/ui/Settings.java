@@ -4,28 +4,27 @@ import java.awt.Color;
 
 public class Settings {
 	
-	
 	/* Constants */
 	
 	public static final int IMMORTAL = -1;
 	
-	
 	/* Game Settings */
 	
 	// Number of neighbors required for cells to die, and for cells to be born
-	public static int NEIGHBOURS_CAUSING_DEATH_MAX = 4;
-	public static int NEIGHBOURS_CAUSING_DEATH_MIN = 1;
+	public static int NEIGHBOURS_CAUSING_DEATH_MAX = 7;	// n or more surrounding cells and cell dies
+	public static int NEIGHBOURS_CAUSING_DEATH_MIN = 1;	// n or less surrounding cells and cell dies
+	
+	// If number of adjacent cells is in this range (inclusive), a cell is born
 	public static int NEIGHBOURS_CAUSING_BIRTH_MAX = 3;
 	public static int NEIGHBOURS_CAUSING_BIRTH_MIN = 3;
 	
 	// Number of iterations the cell can survive before dying
-	public static int CELL_LIFE = -1;	// By default, immortal
-	
+	public static int CELL_LIFE = 5;
 	
 	/* Visual Settings */
 	
-	// Show the age of the cell visually
-	public static boolean SHOW_LIFE = false;
+	public static boolean SHOW_AGE = true;			// Show the age of the cell
+	public static boolean SHOW_GENERATION = true;	// Show the number of generations before the cell
 	
 	// Show lines of the cell grid
 	public static boolean SHOW_GRID = false;

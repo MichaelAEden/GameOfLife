@@ -9,17 +9,17 @@ public class Cell {
 	private Color colour;
 	
 	private int age;
+	private int nth_generation;			// Number of generations before the cell
 	private boolean isActive;			// Whether cell is currently active
 	private boolean spawnNextCycle;		// Spawn cell after next iteration
 	private boolean dieNextCycle;		// Kill cell after next iteration
-
+	
 	/*
 	 * Constructor.
-	 * 
-	 * @param activateNow	Whether cell should be brought to life immediately, or next iteration
 	 */
 	public Cell() {
 		age = 0;
+		nth_generation = 0;
 		colour = Settings.DEFAULT_CELL_COLOUR;
 		isActive = false;
 		spawnNextCycle = false;
@@ -33,13 +33,28 @@ public class Cell {
 		if (spawnNextCycle) {
 			spawn();
 		}
-		else if (dieNextCycle ||
-				(Settings.CELL_LIFE != Settings.IMMORTAL && age > Settings.CELL_LIFE)) {
+		else if (dieNextCycle) {
 			kill();
 		}
 		
-		age++;
-		colour = new Color(colour.getRed() - 3, colour.getBlue() - 3, colour.getGreen() - 3);
+		if (isActive) {
+			age++;
+			
+			float hue = 0.4f;
+			if (Settings.SHOW_AGE) {
+				if (Settings.CELL_LIFE == Settings.IMMORTAL) {
+					hue = Math.min(age / 200.0f, 1.0f);
+				}
+				else {
+					hue = (((age * 1.0f) / Settings.CELL_LIFE) + 0.3f) % 1.0f;
+				}
+			}
+
+			float sat = Settings.SHOW_GENERATION ? Math.min(nth_generation / 50.0f, 1.0f) : 1.0f;
+			float val = 1.0f;
+			
+			colour = new Color(Color.HSBtoRGB(hue, sat, val));
+		}
 	}
 	
 	
@@ -48,6 +63,9 @@ public class Cell {
 	
 	public int getAge() {
 		return age;
+	}
+	public int getGeneration() {
+		return nth_generation;
 	}
 	public Color getColour() {
 		return colour;
@@ -61,6 +79,8 @@ public class Cell {
 		isActive = false;
 		
 		age = 0;
+		nth_generation = 0;
+		
 		spawnNextCycle = false;
 		dieNextCycle = false;
 		colour = Settings.DEFAULT_CELL_COLOUR;
@@ -73,7 +93,8 @@ public class Cell {
 		isActive = true;
 		spawnNextCycle = false;
 	}
-	public void spawnNextCycle() {
+	public void spawnNextCycle(int nth_generation) {
+		this.nth_generation = nth_generation;
 		spawnNextCycle = true;
 	}
 }

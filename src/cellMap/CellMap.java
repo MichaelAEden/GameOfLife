@@ -64,7 +64,7 @@ public class CellMap {
 		for (int x = 0; x < columns; x++) {
 			for (int y = 0; y < rows; y++) {
 				if (!isActiveCellAt(x, y) && shouldSpawnCellAt(x, y)) {
-					spawnCellNextCycle(x, y);
+					spawnCellNextCycle(x, y, getGenerationOfAdjacentCells(x, y));
 				}
 				else if (isActiveCellAt(x, y) && shouldKillCellAt(x, y)) {
 					killCellNextCycle(x, y);
@@ -112,6 +112,23 @@ public class CellMap {
 		return adjacentCells;
 	}
 	
+	/*
+	 * Gets the largest generation of adjacent live cells to determine the generation of the new cell
+	 */
+	private int getGenerationOfAdjacentCells(int x, int y) {
+		int generation = 0;
+		for (int tx = x - 1; tx <= x + 1; tx++) {
+			for (int ty = y - 1; ty <= y + 1; ty++) {
+				if (tx == x && ty == y) continue;
+				if (isActiveCellAt(tx, ty)) {
+					generation = Math.max(getCellAt(tx, ty).getGeneration(), generation);
+				}
+			}
+		}
+		
+		return generation;
+	}
+	
 	public void draw(Graphics2D g) {
 		for(int x = 0; x < columns; x++) {
 			for(int y = 0; y < rows; y++) {
@@ -143,9 +160,9 @@ public class CellMap {
 		if (isActiveCellAt(x, y)) return;
 		map[x][y].spawn();
 	}
-	public void spawnCellNextCycle(int x, int y) {
+	public void spawnCellNextCycle(int x, int y, int generation) {
 		if (isActiveCellAt(x, y)) return;
-		map[x][y].spawnNextCycle();
+		map[x][y].spawnNextCycle(generation + 1);
 	}
 	public void killCellNow(int x, int y) {
 		if (!isActiveCellAt(x, y)) return;
@@ -158,6 +175,11 @@ public class CellMap {
 	
 	public void updateCellAt(int x, int y) {
 		map[x][y].update(this);
+	}
+	
+	public Cell getCellAt(int x, int y) {
+		if (!isInBounds(x, y)) return null;
+		return map[x][y];
 	}
 	
 	public Color getCellColourAt(int x, int y) {

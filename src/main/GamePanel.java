@@ -6,6 +6,7 @@ import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -19,9 +20,11 @@ import javax.swing.JFrame;
 @SuppressWarnings("serial")
 public class GamePanel extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 	
+	private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	
 	// Dimensions
-	public static final int WIDTH = 1280;
-	public static final int HEIGHT = 756;
+	public static final int WIDTH = (int) screenSize.getWidth();
+	public static final int HEIGHT = (int) screenSize.getHeight();
 	public static final int SCALE = 1;
 	
 	// Game Thread
