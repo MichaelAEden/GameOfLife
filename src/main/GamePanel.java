@@ -17,32 +17,34 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 @SuppressWarnings("serial")
-public class GamePanel extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener
-{
-	//dimensions
+public class GamePanel extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
+	
+	// Dimensions
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 756;
 	public static final int SCALE = 1;
 	
-	//game thread
+	// Game Thread
 	private Thread thread;
 	private boolean running;
 	private int FPS = 60;
 	private static int currentFPS;
 	private static int ticks = 0;
 	
-	//image
+	// Rendering
 	private BufferedImage image;
 	private Graphics2D g;
 	
-	//game state manager
+	// Game State Manager
 	private GameStateManager gsm;
 	
-	//JFrame
+	// JFrame
 	private JFrame frame;
 
-	public GamePanel(JFrame frame)
-	{
+	/*
+	 * Constructor.
+	 */
+	public GamePanel(JFrame frame) {
 		super();
 		
 		this.frame = frame;
@@ -55,13 +57,13 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 		requestFocus();
 	}
 
-	//Called once the JPanel is finished loading
-	//Creates thread
-	public void addNotify()
-	{
+	/*
+	 * Creates thread, called once the JPanel is finished loading.
+	 * @see java.awt.Canvas#addNotify()
+	 */
+	public void addNotify() {
 		super.addNotify();
-		if (thread == null)
-		{
+		if (thread == null) {
 			gsm = new GameStateManager();
 			
 			thread = new Thread(this);
@@ -72,20 +74,20 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 		}
 	}
 	
-	//Called from run()
-	//Initializes and updates some variables
-	private void init()
-	{	
+	/*
+	 * Initializes rendering and thread variables.
+	 */
+	private void init() {	
 		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		g = (Graphics2D)image.getGraphics();
 		
 		running = true;
 	}
-
-	//Called once the thread starts
-	//Contains the game loop
-	public void run() 
-	{
+	
+	/*
+	 * Runs the game loop - updating and rendering.
+	 */
+	public void run() {
 		init();
 		
 		long milliStart = System.currentTimeMillis();
@@ -95,31 +97,26 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 		int sleepTime;
 		int targetTime = (int)(1F / FPS * 1000);
 		
-		//GAME LOOP
-		while(running)
-		{	
+		// GAME LOOP
+		while(running) {	
 			start = System.nanoTime();
 			
 			update();
 			
 			elapsedTime = (int)(System.nanoTime() - start) / 1000000;
 			sleepTime = targetTime - elapsedTime;
-			if (sleepTime < 0)
-			{
+			if (sleepTime < 0) {
 				sleepTime = 0;
 			}
-			try
-			{
+			try {
 				Thread.sleep(sleepTime);
 			}
-			catch (Exception e)
-			{
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 			ticks++;
 			
-			if (System.currentTimeMillis() - milliStart > 1000)
-			{
+			if (System.currentTimeMillis() - milliStart > 1000) {
 				milliStart = System.currentTimeMillis();
 				currentFPS = ticks;
 				ticks = 0;
@@ -129,18 +126,17 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 		}
 	}
 	
-	//Called every 1/60 of a second from run()
-	//Updates the GameStateManager
-	private void update() 
-	{
-		//updates 
+	/*
+	 * Updates and renders the GameStateManager. Called every iteration of the game loop.
+	 */
+	private void update() {
+		// Updates 
 		gsm.update();
 		gsm.draw(g);
 		
-		//draws to screen
+		// Rendering
 		BufferStrategy bs = getBufferStrategy();
-		if(bs == null)
-		{
+		if(bs == null) {
 			createBufferStrategy(3);
 			return;
 		}
@@ -152,8 +148,7 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 		
 	}
 	
-	public static int getTimeInTicks()
-	{
+	public static int getTimeInTicks() {
 		return ticks;
 	}
 	

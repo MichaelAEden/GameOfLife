@@ -11,8 +11,7 @@ import ui.Settings;
 /**
  * A map of living and dead cells.
  */
-public class CellMap 
-{	
+public class CellMap {	
 	private int horizontalIndent;
 	private int verticalIndent;
 	private int width;
@@ -61,8 +60,7 @@ public class CellMap
 		}
 	}
 	
-	public void update() 
-	{	
+	public void update() {	
 		for (int x = 0; x < columns; x++) {
 			for (int y = 0; y < rows; y++) {
 				if (!isActiveCellAt(x, y) && shouldSpawnCellAt(x, y)) {
@@ -114,8 +112,7 @@ public class CellMap
 		return adjacentCells;
 	}
 	
-	public void draw(Graphics2D g)
-	{
+	public void draw(Graphics2D g) {
 		for(int x = 0; x < columns; x++) {
 			for(int y = 0; y < rows; y++) {
 				if (isActiveCellAt(x, y)) {
@@ -127,12 +124,10 @@ public class CellMap
 		
 		if (Settings.SHOW_GRID) {
 			g.setColor(new Color(50, 50, 50));
-			for(int x = 0; x <= columns; x++)
-			{
+			for(int x = 0; x <= columns; x++) {
 				g.drawLine(getPixelFromCell(x, 0).x, verticalIndent, getPixelFromCell(x, 0).x, verticalIndent + height);
 			}
-			for(int y = 0; y <= rows; y++)
-			{
+			for(int y = 0; y <= rows; y++) {
 				g.drawLine(horizontalIndent, getPixelFromCell(0, y).y, horizontalIndent + width, getPixelFromCell(0, y).y);
 			}
 		}

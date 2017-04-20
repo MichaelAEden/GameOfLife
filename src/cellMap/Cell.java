@@ -44,9 +44,7 @@ public class Cell {
 	
 	
 	
-	/* * * * * * * * * * * * * *
-	 * 		GETTERS AND SETTERS
-	 * * * * * * * * * * * * * */
+	/* Getters and Setters */
 	
 	public int getAge() {
 		return age;

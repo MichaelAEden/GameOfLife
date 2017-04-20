@@ -4,15 +4,13 @@ import java.awt.Color;
 
 public class Settings {
 	
-	/* * * * * * * * * * * * * *
-	 * 		CONSTANTS
-	 * * * * * * * * * * * * * */
+	
+	/* Constants */
 	
 	public static final int IMMORTAL = -1;
 	
-	/* * * * * * * * * * * * * *
-	 * 		GAME SETTINGS
-	 * * * * * * * * * * * * * */
+	
+	/* Game Settings */
 	
 	// Number of neighbors required for cells to die, and for cells to be born
 	public static int NEIGHBOURS_CAUSING_DEATH_MAX = 4;
@@ -23,9 +21,8 @@ public class Settings {
 	// Number of iterations the cell can survive before dying
 	public static int CELL_LIFE = -1;	// By default, immortal
 	
-	/* * * * * * * * * * * * * *
-	 * 		VISUAL SETTINGS
-	 * * * * * * * * * * * * * */
+	
+	/* Visual Settings */
 	
 	// Show the age of the cell visually
 	public static boolean SHOW_LIFE = false;
@@ -38,9 +35,7 @@ public class Settings {
 	
 
 	
-	/* * * * * * * * * * * * * *
-	 * 		SETTERS
-	 * * * * * * * * * * * * * */
+	/* Getters and Setters */
 	
 	public static boolean setNeighboursCausingDeathMax(int neighbours) {
 		if (!isValidNeighbourCount(neighbours) || neighbours <= NEIGHBOURS_CAUSING_DEATH_MIN) 
@@ -79,9 +74,9 @@ public class Settings {
 		return true;
 	}
 	
-	/* * * * * * * * * * * * * *
-	 * 		HELPER FUNCTIONS
-	 * * * * * * * * * * * * * */
+	
+	
+	/* Helpers */
 	
 	public static boolean isValidNeighbourCount(int neighbours) {
 		return neighbours >= 0 && neighbours <= 8;

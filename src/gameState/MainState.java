@@ -10,8 +10,7 @@ import main.GamePanel;
 
 import cellMap.CellMap;
 
-public class MainState extends GameState 
-{
+public class MainState extends GameState {
 	
 	private CellMap cellMap;
 	
@@ -20,15 +19,13 @@ public class MainState extends GameState
 	private int updateTick;
 
 
-	public MainState(GameStateManager gsm) 
-	{
+	public MainState(GameStateManager gsm) {
 		super(gsm);
 		
 		cellMap = new CellMap(25, GamePanel.WIDTH, GamePanel.HEIGHT);
 	}
 
-	public void update() 
-	{
+	public void update() {
 		if(update)
 		{
 			updateTick--;
@@ -40,15 +37,13 @@ public class MainState extends GameState
 		}
 	}
 
-	public void draw(Graphics2D g) 
-	{
+	public void draw(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
 		cellMap.draw(g);
 	}
 
-	public void keyPressed(int k) 
-	{
+	public void keyPressed(int k) {
 		if(k == KeyEvent.VK_P) update = !update;
 	}
 
@@ -70,15 +65,12 @@ public class MainState extends GameState
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent m)
-	{
+	public void mouseDragged(MouseEvent m) {
 		mouseClicked(m);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent m) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-
 }

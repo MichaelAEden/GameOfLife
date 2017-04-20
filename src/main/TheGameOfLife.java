@@ -4,10 +4,8 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
-public class TheGameOfLife 
-{
-	public static void main(String[] args)
-	{
+public class TheGameOfLife {
+	public static void main(String[] args) {
 		JFrame frame = new JFrame("The Game Of LIfe");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
