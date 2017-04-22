@@ -11,7 +11,7 @@ public class Settings {
 	/* Game Settings */
 	
 	// Number of neighbors required for cells to die, and for cells to be born
-	public static int NEIGHBOURS_CAUSING_DEATH_MAX = 7;	// n or more surrounding cells and cell dies
+	public static int NEIGHBOURS_CAUSING_DEATH_MAX = 4;	// n or more surrounding cells and cell dies
 	public static int NEIGHBOURS_CAUSING_DEATH_MIN = 1;	// n or less surrounding cells and cell dies
 	
 	// If number of adjacent cells is in this range (inclusive), a cell is born
@@ -19,18 +19,19 @@ public class Settings {
 	public static int NEIGHBOURS_CAUSING_BIRTH_MIN = 3;
 	
 	// Number of iterations the cell can survive before dying
-	public static int CELL_LIFE = 5;
+	public static int CELL_LIFE = 100;
 	
 	/* Visual Settings */
 	
-	public static boolean SHOW_AGE = true;			// Show the age of the cell
+	public static boolean SHOW_AGE = false;			// Show the age of the cell
 	public static boolean SHOW_GENERATION = true;	// Show the number of generations before the cell
 	
 	// Show lines of the cell grid
 	public static boolean SHOW_GRID = false;
 	
 	public static Color DEFAULT_CELL_COLOUR = Color.WHITE;
-	public static Color DEFAULT_TABLE_COLOUR = Color.BLACK;
+	public static Color DEFAULT_DEAD_CELL_COLOUR = Color.BLACK;
+	public static int DEFAULT_UPDATE_RATE = 3;
 	
 
 	

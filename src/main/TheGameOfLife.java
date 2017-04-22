@@ -19,3 +19,19 @@ public class TheGameOfLife {
 		frame.setVisible(true);
 	}
 }
+
+
+
+
+
+
+
+
+
+//package main;
+//
+//public class TheGameOfLife {
+//	public static void main(String[] args) {
+//		new GamePanel();
+//	}
+//}

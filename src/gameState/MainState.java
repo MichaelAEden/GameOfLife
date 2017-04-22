@@ -7,32 +7,33 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import main.GamePanel;
-
+import cellMap.Cell;
 import cellMap.CellMap;
 
 public class MainState extends GameState {
 	
 	private CellMap cellMap;
 	
-	private boolean isPaused;
+	private int updateTick = 0;
 	private int updateRate = 15;
-	private int updateTick;
+	private boolean isPaused = true;
+		
+	private int cellId = 1;
 
 
 	public MainState(GameStateManager gsm) {
 		super(gsm);
 		
-		cellMap = new CellMap(2, GamePanel.WIDTH, GamePanel.HEIGHT);
+		cellMap = new CellMap(5, GamePanel.WIDTH, GamePanel.HEIGHT);
 	}
 
 	public void update() {
-		if (isPaused)
+		if (!isPaused)
 		{
-			updateTick--;
-			if(updateTick <= 0)
-			{
-				updateTick = updateRate;
+			updateTick++;
+			if (updateTick >= updateRate) {
 				cellMap.update();
+				updateTick = 0;
 			}
 		}
 	}
@@ -46,7 +47,7 @@ public class MainState extends GameState {
 	public void keyPressed(int k) {
 		if(k == KeyEvent.VK_P) isPaused = !isPaused;
 		if(k == KeyEvent.VK_RIGHT) {
-			if (updateRate >= 3) {
+			if (updateRate >= 1) {
 				updateRate--;
 			}
 		}
@@ -55,11 +56,24 @@ public class MainState extends GameState {
 				updateRate++;
 			}
 		}
+		
+		if(k == KeyEvent.VK_D) {
+			cellId++;
+			if (cellId > Cell.MAX_ID) {
+				cellId = 1;
+			}
+		}
+		if(k == KeyEvent.VK_A) {
+			cellId--;
+			if (cellId < 1) {
+				cellId = Cell.MAX_ID;
+			}
+		}
 	}
 
 	public void mouseClicked(MouseEvent m) {
 		Point cell = cellMap.getCellFromMouse(m);
-		cellMap.spawnCellNow(cell.x, cell.y);
+		cellMap.createCell(cell.x, cell.y, cellId);
 	}
 
 	@Override

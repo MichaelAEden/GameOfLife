@@ -187,3 +187,197 @@ public class GamePanel extends Canvas implements Runnable, KeyListener, MouseLis
 	public void mouseEntered(MouseEvent mouse) {}
 	public void mouseExited(MouseEvent mouse) {}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//package main;
+//
+//import gameState.GameStateManager;
+//
+//import java.awt.Dimension;
+//import java.awt.Toolkit;
+//import java.awt.event.KeyEvent;
+//import java.awt.event.KeyListener;
+//import java.awt.event.MouseEvent;
+//import java.awt.event.MouseListener;
+//import java.awt.event.MouseMotionListener;
+//import static org.lwjgl.glfw.GLFW.*;
+//import static org.lwjgl.opengl.GL11.*;
+//
+//import org.lwjgl.glfw.GLFWVidMode;
+//import org.lwjgl.opengl.GL;
+//
+//public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMotionListener {
+//	
+//	private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+//	
+//	// Dimensions
+//	public static final int WIDTH = (int) screenSize.getWidth();
+//	public static final int HEIGHT = (int) screenSize.getHeight();
+//	public static final String TITLE = "The Game of Life";
+//	public static final int FULLSCREEN = 0;	// 1 if full screen, 0 otherwise
+//	public static final int SCALE = 1;
+//	
+//	// Game Thread
+//	private int FPS = 60;
+//	private static int currentFPS;
+//	private static int ticks = 0;
+//	
+//	// Game State Manager
+//	private GameStateManager gsm;
+//	
+//	// Rendering
+//	private long window;
+//
+//	/*
+//	 * Constructor.
+//	 */
+//	public GamePanel() throws IllegalStateException {
+//		if (!glfwInit()) {
+//			throw new IllegalStateException("Failed to initialize GLFW!");
+//		}
+//		
+//		// Initializes window, and check if window was initialized
+//		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, FULLSCREEN, 0);
+//		if (window == 0) {
+//			throw new IllegalStateException("Failed to initialize GLFW!");
+//		}
+//		
+//		// Makes video invisible, centers window, then makes it visible
+//		GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+//		glfwSetWindowPos(window, (videoMode.width() - WIDTH) / 2, (videoMode.height() - HEIGHT) / 2);
+//		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+//		glfwFocusWindow(window);
+//		
+//		glfwMakeContextCurrent(window);		// Gives OpenGL a context to draw to
+//		GL.createCapabilities();
+//		
+//		glfwSwapInterval(1);
+//		
+//		run();
+//	}
+//	
+//	/*
+//	 * Runs the game loop - updating and rendering.
+//	 */
+//	public void run() {
+//				
+//		// GAME LOOP
+//		while(!glfwWindowShouldClose(window)) {
+//            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//			glfwSwapBuffers(window);
+//			
+//			glfwPollEvents();
+//						
+//			update();
+//			render();
+//		}
+//		
+//		glfwTerminate();
+//	}
+//	
+//	private void render() {
+////		glLineWidth(2.5f); 
+////		glColor3f(1.0f, 0.0f, 0.0f);
+////		glBegin(GL_LINES);
+////		glVertex3f(0.0f, 0.0f, 0.0f);
+////		glVertex3f(15, 0, 0);
+////		glEnd();
+//		
+//		
+//	    glClear(GL_COLOR_BUFFER_BIT);
+//	    glClear(GL_DEPTH_BUFFER_BIT);
+//		glEnable(GL_DEPTH_TEST);
+//		
+//	     glLoadIdentity();  
+//
+//	     glTranslatef(0f,0.0f,-7f);             
+//	     glRotatef(45f,0.0f,1.0f,0.0f);               
+//	     glColor3f(0.5f,0.5f,1.0f);  
+//
+//	     glBegin(GL_QUADS);    
+//	        glColor3f(1.0f,1.0f,0.0f);           
+//	        glVertex3f( 1.0f, 1.0f,-1.0f);        
+//	        glVertex3f(-1.0f, 1.0f,-1.0f);        
+//	        glVertex3f(-1.0f, 1.0f, 1.0f);
+//	        glVertex3f( 1.0f, 1.0f, 1.0f);  
+//	        glColor3f(1.0f,0.5f,0.0f);            
+//	        glVertex3f( 1.0f,-1.0f, 1.0f);
+//	        glVertex3f(-1.0f,-1.0f, 1.0f);
+//	        glVertex3f(-1.0f,-1.0f,-1.0f);
+//	        glVertex3f( 1.0f,-1.0f,-1.0f);
+//	        glColor3f(1.0f,0.0f,0.0f);
+//	        glVertex3f( 1.0f, 1.0f, 1.0f);
+//	        glVertex3f(-1.0f, 1.0f, 1.0f);
+//	        glVertex3f(-1.0f,-1.0f, 1.0f);
+//	        glVertex3f( 1.0f,-1.0f, 1.0f);
+//	        glColor3f(1.0f,1.0f,0.0f);
+//	        glVertex3f( 1.0f,-1.0f,-1.0f);
+//	        glVertex3f(-1.0f,-1.0f,-1.0f);
+//	        glVertex3f(-1.0f, 1.0f,-1.0f);
+//	        glVertex3f( 1.0f, 1.0f,-1.0f);
+//	        glColor3f(0.0f,0.0f,1.0f);
+//	        glVertex3f(-1.0f, 1.0f, 1.0f);
+//	        glVertex3f(-1.0f, 1.0f,-1.0f);
+//	        glVertex3f(-1.0f,-1.0f,-1.0f);
+//	        glVertex3f(-1.0f,-1.0f, 1.0f);
+//	        glColor3f(1.0f,0.0f,1.0f);
+//	        glVertex3f( 1.0f, 1.0f,-1.0f);
+//	        glVertex3f( 1.0f, 1.0f, 1.0f);
+//	        glVertex3f( 1.0f,-1.0f, 1.0f);
+//	        glVertex3f( 1.0f,-1.0f,-1.0f);
+//	    glEnd();    
+//	 }
+//	
+//	/*
+//	 * Updates and renders the GameStateManager. Called every iteration of the game loop.
+//	 */
+//	private void update() {
+//		
+//	}
+//	
+//	public static int getTimeInTicks() {
+//		return ticks;
+//	}
+//	
+//	/*KeyListener and MouseListener Methods*/
+//
+//	public void keyPressed(KeyEvent key) 
+//	{
+//		gsm.keyPressed(key.getKeyCode());
+//	}
+//	public void mouseClicked(MouseEvent mouse) 
+//	{
+//		gsm.mouseClicked(mouse);
+//	}
+//	public void mousePressed(MouseEvent mouse) 
+//	{
+//		gsm.mousePressed(mouse);
+//	}
+//	public void mouseReleased(MouseEvent mouse)
+//	{
+//		gsm.mouseReleased(mouse);
+//	}
+//	public void mouseMoved(MouseEvent mouse) 
+//	{
+//		gsm.mouseMoved(mouse);
+//	}
+//	public void mouseDragged(MouseEvent mouse)
+//	{
+//		gsm.mouseDragged(mouse);
+//	}
+//	
+//	public void keyTyped(KeyEvent key){}
+//	public void keyReleased(KeyEvent key) {}
+//	public void mouseEntered(MouseEvent mouse) {}
+//	public void mouseExited(MouseEvent mouse) {}
+//}

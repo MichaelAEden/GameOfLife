@@ -17,12 +17,18 @@ public class CellMap {
 	private int width;
 	private int height;
 	
-	private Cell[][] map;
+	private byte[][] cellsState;
+	private int[][] cellsAge;
+	private int[][] cellsGeneration;
+	private int[][] cellsType;
+	
 	private int columns;
 	private int rows;
 	
 	private int cellWidth;
 	private int cellHeight;
+	
+	private int updateTick = 0;
 	
 	/**
 	 * Constructor.
@@ -49,91 +55,111 @@ public class CellMap {
 	/**
 	 * Initializes a blank cell map.
 	 */
-	private void init() {	
-		map = new Cell[columns][rows];
+	private void init() {
+		cellsState = new byte[columns][rows];
+		cellsAge = new int[columns][rows];
+		cellsGeneration = new int[columns][rows];
+		cellsType = new int[columns][rows];
 		for(int x = 0; x < columns; x++)
 		{
-			map[x] = new Cell[rows];
+			cellsState[x] = new byte[rows];
+			cellsAge[x] = new int[rows];
+			cellsGeneration[x] = new int[rows];
+			cellsType[x] = new int[rows];
+			
 			for(int y = 0; y < rows; y++) {
-				map[x][y] = new Cell();
+				cellsState[x][y] = Cell.DEAD;
+				cellsAge[x][y] = 0;
+				cellsGeneration[x][y] = 0;
+				cellsType[x][y] = Cell.CELL_DEAD.ID;
 			}
 		}
 	}
 	
-	public void update() {	
-		for (int x = 0; x < columns; x++) {
-			for (int y = 0; y < rows; y++) {
-				if (!isActiveCellAt(x, y) && shouldSpawnCellAt(x, y)) {
-					spawnCellNextCycle(x, y, getGenerationOfAdjacentCells(x, y));
-				}
-				else if (isActiveCellAt(x, y) && shouldKillCellAt(x, y)) {
-					killCellNextCycle(x, y);
-				}
-			}
-		}
+	/**
+	 * Updates all cells, including dead cells.
+	 */
+	public void update() {		
+		updateTick++;
 		
-		for (int x = 0; x < columns; x++) {
-			for (int y = 0; y < rows; y++) {
-				updateCellAt(x, y);
-			}
-		}
-	}
-	
-	/*
-	 * Returns whether cell at the given coordinates should be spawned next iteration
-	 */
-	private boolean shouldSpawnCellAt(int x, int y) {
-		return (getNumberOfAdjacentCells(x, y) <= Settings.NEIGHBOURS_CAUSING_BIRTH_MAX &&
-				getNumberOfAdjacentCells(x, y) >= Settings.NEIGHBOURS_CAUSING_BIRTH_MIN);	
-	}
-	
-	/*
-	 * Returns whether cell at the given coordinates should die next iteration
-	 */
-	private boolean shouldKillCellAt(int x, int y) {
-		return (getNumberOfAdjacentCells(x, y) >= Settings.NEIGHBOURS_CAUSING_DEATH_MAX ||
-				getNumberOfAdjacentCells(x, y) <= Settings.NEIGHBOURS_CAUSING_DEATH_MIN);
-	}
-	
-	/*
-	 * Gets the number of adjacent live cells to determine if a cell should live or die
-	 */
-	private int getNumberOfAdjacentCells(int x, int y) {
-		int adjacentCells = 0;
-		for (int tx = x - 1; tx <= x + 1; tx++) {
-			for (int ty = y - 1; ty <= y + 1; ty++) {
-				if (tx == x && ty == y) continue;
-				if (isActiveCellAt(tx, ty)) {
-					adjacentCells++;
+		for (int state = 0; state < 3; state++) {
+			for (int x = 0; x < columns; x++) {
+				for (int y = 0; y < rows; y++) {
+					if (state == 0) {
+						if (getState(x, y) == Cell.SPAWNING) {
+							setState(x, y, Cell.ALIVE);
+							getCell(x, y).onSpawn(this, x, y);
+						}
+					}
+					
+					if (state == 1) {
+						if (getState(x, y) == Cell.DYING) {
+							setState(x, y, Cell.DEAD);
+							setId(x, y, Cell.CELL_DEAD.ID);
+							getCell(x, y).onDeath(this, x, y);
+						}
+					}
+					
+					if (state == 2) {
+						if (isActiveCell(x, y))
+							getCell(x, y).update(this, x, y);
+					}
+					
+					// Note that dead cells are not updated directly, but
+					// are updated through live neighbor cells
 				}
 			}
 		}
-		
-		return adjacentCells;
 	}
-	
-	/*
-	 * Gets the largest generation of adjacent live cells to determine the generation of the new cell
+
+	/**
+	 * Called upon cell creation by user.
 	 */
-	private int getGenerationOfAdjacentCells(int x, int y) {
-		int generation = 0;
-		for (int tx = x - 1; tx <= x + 1; tx++) {
-			for (int ty = y - 1; ty <= y + 1; ty++) {
-				if (tx == x && ty == y) continue;
-				if (isActiveCellAt(tx, ty)) {
-					generation = Math.max(getCellAt(tx, ty).getGeneration(), generation);
-				}
-			}
-		}
+	public void createCell(int x, int y, int type) {
+		setState(x, y, Cell.ALIVE);
+		setId(x, y, type);
 		
-		return generation;
+		Cell.getCellFromId(type).onCreation(this, x, y);
 	}
 	
+	/**
+	 * Called upon cell birth.
+	 */
+	public void spawnCell(int x, int y, int type) {	
+		setState(x, y, Cell.SPAWNING);
+		setId(x, y, type);
+	}
+	
+	/**
+	 * Called upon cell deletion by user.
+	 */
+	public void deleteCell(int x, int y) {
+		if (!isActiveCell(x, y)) return;
+		Cell.getCellFromId(cellsType[x][y]).onDeletion(this, x, y);
+		
+		setState(x, y, Cell.DEAD);
+		setId(x, y, Cell.CELL_DEAD.ID);
+	}
+	
+	/**
+	 * Called upon cell death.
+	 */
+	public void killCell(int x, int y) {
+		if (!isActiveCell(x, y)) return;
+		setState(x, y, Cell.DYING);
+	}
+	
+	
+	/* Rendering Functions */
+	
+	/**
+	 * Renders the cell map.
+	 */
 	public void draw(Graphics2D g) {
 		for(int x = 0; x < columns; x++) {
 			for(int y = 0; y < rows; y++) {
-				if (isActiveCellAt(x, y)) {
-					g.setColor(this.getCellColourAt(x, y));
+				if (isActiveCell(x, y)) {
+					g.setColor(this.getCellColour(x, y));
 					g.fillRect(this.getPixelFromCell(x, y).x, getPixelFromCell(x, y).y, cellWidth, cellHeight);
 				}
 			}
@@ -149,46 +175,100 @@ public class CellMap {
 			}
 		}
 	}
-
 	
 	
-	/* * * * * * * * * * * * * *
-	 * 		GETTERS AND SETTERS
-	 * * * * * * * * * * * * * */
+	/* Getters and Setters*/
 	
-	public void spawnCellNow(int x, int y) {
-		if (isActiveCellAt(x, y)) return;
-		map[x][y].spawn();
-	}
-	public void spawnCellNextCycle(int x, int y, int generation) {
-		if (isActiveCellAt(x, y)) return;
-		map[x][y].spawnNextCycle(generation + 1);
-	}
-	public void killCellNow(int x, int y) {
-		if (!isActiveCellAt(x, y)) return;
-		map[x][y].kill();
-	}
-	public void killCellNextCycle(int x, int y) {
-		if (!isActiveCellAt(x, y)) return;
-		map[x][y].killNextCycle();
+	public int getUpdateTick() {
+		return updateTick;
 	}
 	
-	public void updateCellAt(int x, int y) {
-		map[x][y].update(this);
+	private void setState(int x, int y, byte state) {
+		if (isInBounds(x, y))
+			cellsState[x][y] = state;
+	}
+	private void setId(int x, int y, int id) {
+		if (isInBounds(x, y))
+			cellsType[x][y] = id;
 	}
 	
-	public Cell getCellAt(int x, int y) {
-		if (!isInBounds(x, y)) return null;
-		return map[x][y];
+	public Cell getCell(int x, int y) {
+		return Cell.getCellFromId(getCellId(x, y));
+	}
+	public int getCellId(int x, int y) {
+		if (!isActiveCell(x, y)) return Cell.CELL_DEAD.ID;
+		return cellsType[x][y];
 	}
 	
-	public Color getCellColourAt(int x, int y) {
-		if (!isInBounds(x, y)) return Settings.DEFAULT_TABLE_COLOUR;
-		return map[x][y].getColour();
+	public void incrementAge(int x, int y) {
+		if (isInBounds(x, y))
+			cellsAge[x][y]++;
 	}
-	public boolean isActiveCellAt(int x, int y) {
+	public void setAge(int x, int y, int age) {
+		if (isInBounds(x, y))
+			cellsAge[x][y] = age;
+	}
+	public void setGeneration(int x, int y, int generation) {
+		if (isInBounds(x, y))
+			cellsGeneration[x][y] = generation;
+	}
+	
+	public byte getState(int x, int y) {
+		if (!isInBounds(x, y)) return Cell.DEAD;
+		return cellsState[x][y];
+	}
+	public int getAge(int x, int y) {
+		if (!isInBounds(x, y)) return 0;
+		return cellsAge[x][y];
+	}
+	public int getGeneration(int x, int y) {
+		if (!isInBounds(x, y)) return 0;
+		return cellsGeneration[x][y];
+	}
+	public Color getCellColour(int x, int y) {
+		if (!isActiveCell(x, y)) return Settings.DEFAULT_DEAD_CELL_COLOUR;
+		return getCell(x, y).getColour(this, x, y);
+	}
+	public boolean isActiveCell(int x, int y) {
 		if (!isInBounds(x, y)) return false;
-		return map[x][y].isActive();
+		return cellsType[x][y] != Cell.CELL_DEAD.ID && (getState(x, y) == Cell.ALIVE || getState(x, y) == Cell.DYING);
+	}
+	
+	
+	/* Helper Functions */
+	
+	/**
+	 * Gets the number of adjacent live cells of a certain type, at a given point.
+	 */
+	public int getAdjacentCellsOfId(int x, int y, int id) {		
+		int adjacentCells = 0;
+		for (int tx = x - 1; tx <= x + 1; tx++) {
+			for (int ty = y - 1; ty <= y + 1; ty++) {
+				if (tx == x && ty == y) continue;
+				if (isActiveCell(tx, ty) && getCellId(tx, ty) == id) {
+					adjacentCells++;
+				}
+			}
+		}
+		
+		return adjacentCells;
+	}
+	
+	/**
+	 * Gets the largest generation of adjacent live cells to determine the generation of the new cell.
+	 */
+	public int getGenerationOfAdjacentCells(int x, int y) {
+		int generation = 0;
+		for (int tx = x - 1; tx <= x + 1; tx++) {
+			for (int ty = y - 1; ty <= y + 1; ty++) {
+				if (tx == x && ty == y) continue;
+				if (isActiveCell(tx, ty)) {
+					generation = Math.max(getGeneration(tx, ty), generation);
+				}
+			}
+		}
+		
+		return generation;
 	}
 	
 	public boolean isInBounds(int x, int y) {
