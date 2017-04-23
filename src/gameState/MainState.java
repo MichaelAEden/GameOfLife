@@ -15,10 +15,10 @@ public class MainState extends GameState {
 	private CellMap cellMap;
 	
 	private int updateTick = 0;
-	private int updateRate = 15;
+	private int updateRate = 3;
 	private boolean isPaused = true;
 		
-	private int cellId = 1;
+	private int cellId = Cell.CELL_GROWER_A.ID;
 
 
 	public MainState(GameStateManager gsm) {

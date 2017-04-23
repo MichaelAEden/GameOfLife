@@ -21,6 +21,7 @@ public class CellMap {
 	private int[][] cellsAge;
 	private int[][] cellsGeneration;
 	private int[][] cellsType;
+	private byte[][] cellsMetadata;
 	
 	private int columns;
 	private int rows;
@@ -60,18 +61,21 @@ public class CellMap {
 		cellsAge = new int[columns][rows];
 		cellsGeneration = new int[columns][rows];
 		cellsType = new int[columns][rows];
+		cellsMetadata = new byte[columns][rows];
 		for(int x = 0; x < columns; x++)
 		{
 			cellsState[x] = new byte[rows];
 			cellsAge[x] = new int[rows];
 			cellsGeneration[x] = new int[rows];
 			cellsType[x] = new int[rows];
+			cellsMetadata[x] = new byte[rows];
 			
 			for(int y = 0; y < rows; y++) {
 				cellsState[x][y] = Cell.DEAD;
 				cellsAge[x][y] = 0;
 				cellsGeneration[x][y] = 0;
 				cellsType[x][y] = Cell.CELL_DEAD.ID;
+				cellsMetadata[x][y] = 0;
 			}
 		}
 	}
@@ -82,25 +86,21 @@ public class CellMap {
 	public void update() {		
 		updateTick++;
 		
-		for (int state = 0; state < 3; state++) {
+		for (int state = 0; state < 2; state++) {
 			for (int x = 0; x < columns; x++) {
 				for (int y = 0; y < rows; y++) {
+					
+					// Brings spawning cells to life, kills dying cells.
 					if (state == 0) {
 						if (getState(x, y) == Cell.SPAWNING) {
-							setState(x, y, Cell.ALIVE);
-							getCell(x, y).onSpawn(this, x, y);
+							getCell(x, y).onBirth(this, x, y);
 						}
-					}
-					
-					if (state == 1) {
-						if (getState(x, y) == Cell.DYING) {
-							setState(x, y, Cell.DEAD);
-							setId(x, y, Cell.CELL_DEAD.ID);
+						else if (getState(x, y) == Cell.DYING) {
 							getCell(x, y).onDeath(this, x, y);
 						}
 					}
 					
-					if (state == 2) {
+					else if (state == 1) {
 						if (isActiveCell(x, y))
 							getCell(x, y).update(this, x, y);
 					}
@@ -116,18 +116,7 @@ public class CellMap {
 	 * Called upon cell creation by user.
 	 */
 	public void createCell(int x, int y, int type) {
-		setState(x, y, Cell.ALIVE);
-		setId(x, y, type);
-		
 		Cell.getCellFromId(type).onCreation(this, x, y);
-	}
-	
-	/**
-	 * Called upon cell birth.
-	 */
-	public void spawnCell(int x, int y, int type) {	
-		setState(x, y, Cell.SPAWNING);
-		setId(x, y, type);
 	}
 	
 	/**
@@ -136,18 +125,8 @@ public class CellMap {
 	public void deleteCell(int x, int y) {
 		if (!isActiveCell(x, y)) return;
 		Cell.getCellFromId(cellsType[x][y]).onDeletion(this, x, y);
-		
-		setState(x, y, Cell.DEAD);
-		setId(x, y, Cell.CELL_DEAD.ID);
 	}
 	
-	/**
-	 * Called upon cell death.
-	 */
-	public void killCell(int x, int y) {
-		if (!isActiveCell(x, y)) return;
-		setState(x, y, Cell.DYING);
-	}
 	
 	
 	/* Rendering Functions */
@@ -183,11 +162,7 @@ public class CellMap {
 		return updateTick;
 	}
 	
-	private void setState(int x, int y, byte state) {
-		if (isInBounds(x, y))
-			cellsState[x][y] = state;
-	}
-	private void setId(int x, int y, int id) {
+	public void setId(int x, int y, int id) {
 		if (isInBounds(x, y))
 			cellsType[x][y] = id;
 	}
@@ -200,6 +175,10 @@ public class CellMap {
 		return cellsType[x][y];
 	}
 	
+	public void setState(int x, int y, byte state) {
+		if (isInBounds(x, y))
+			cellsState[x][y] = state;
+	}
 	public void incrementAge(int x, int y) {
 		if (isInBounds(x, y))
 			cellsAge[x][y]++;
@@ -211,6 +190,10 @@ public class CellMap {
 	public void setGeneration(int x, int y, int generation) {
 		if (isInBounds(x, y))
 			cellsGeneration[x][y] = generation;
+	}
+	public void setMetadata(int x, int y, byte metadata) {
+		if (isInBounds(x, y))
+			cellsMetadata[x][y] = metadata;
 	}
 	
 	public byte getState(int x, int y) {
@@ -224,6 +207,10 @@ public class CellMap {
 	public int getGeneration(int x, int y) {
 		if (!isInBounds(x, y)) return 0;
 		return cellsGeneration[x][y];
+	}
+	public byte getMetadata(int x, int y) {
+		if (!isInBounds(x, y)) return 0;
+		return cellsMetadata[x][y];
 	}
 	public Color getCellColour(int x, int y) {
 		if (!isActiveCell(x, y)) return Settings.DEFAULT_DEAD_CELL_COLOUR;

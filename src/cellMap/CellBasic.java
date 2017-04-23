@@ -10,7 +10,7 @@ public class CellBasic extends Cell {
 	public Color getColour(CellMap cellMap, int x, int y) {
 		float hue = 0.4f;
 		if (Settings.SHOW_AGE) {
-			if (cellLife == Settings.IMMORTAL) {
+			if (cellLife == Cell.IMMORTAL) {
 				hue = Math.min(cellMap.getAge(x, y) / 200.0f, 1.0f);
 			}
 			else {
@@ -27,7 +27,8 @@ public class CellBasic extends Cell {
 	/**
 	 * Returns whether cell at the given coordinates should be spawned next iteration
 	 */
-	protected boolean shouldSpawn(CellMap cellMap, int x, int y) {
+	@Override
+	protected boolean shouldSpawn(CellMap cellMap, int x, int y, int parentX, int parentY) {
 		// By default, looks for neighbors of the same type only		
 		int adjacentCells = cellMap.getAdjacentCellsOfId(x, y, this.ID);
 		return (!(cellMap.isActiveCell(x, y) && cellMap.getCellId(x, y) == this.ID) && 

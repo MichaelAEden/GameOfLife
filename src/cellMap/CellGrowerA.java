@@ -7,7 +7,7 @@ public class CellGrowerA extends Cell {
 	public CellGrowerA() {
 		super();
 		
-		neighboursCausingDeathMax = 7;
+		neighboursCausingDeathMax = 8;	// Change to 7 for a different look
 		neighboursCausingDeathMin = 2;
 		neighboursCausingBirthMax = 3;
 		neighboursCausingBirthMin = 3;
@@ -20,7 +20,8 @@ public class CellGrowerA extends Cell {
 	/**
 	 * Returns whether cell at the given coordinates should be spawned next iteration
 	 */
-	protected boolean shouldSpawn(CellMap cellMap, int x, int y) {
+	@Override
+	protected boolean shouldSpawn(CellMap cellMap, int x, int y, int parentX, int parentY) {
 		// By default, looks for neighbors of the same type only		
 		int adjacentCells = cellMap.getAdjacentCellsOfId(x, y, this.ID);
 		return (!(cellMap.isActiveCell(x, y) && cellMap.getCellId(x, y) == this.ID) && 

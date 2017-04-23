@@ -2,12 +2,10 @@ package ui;
 
 import java.awt.Color;
 
+import cellMap.Cell;
+
 public class Settings {
-	
-	/* Constants */
-	
-	public static final int IMMORTAL = -1;
-	
+		
 	/* Game Settings */
 	
 	// Number of neighbors required for cells to die, and for cells to be born
@@ -19,7 +17,7 @@ public class Settings {
 	public static int NEIGHBOURS_CAUSING_BIRTH_MIN = 3;
 	
 	// Number of iterations the cell can survive before dying
-	public static int CELL_LIFE = 100;
+	public static int CELL_LIFE = Cell.IMMORTAL;
 	
 	/* Visual Settings */
 	

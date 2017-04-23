@@ -10,7 +10,7 @@ public class CellGrowerB extends Cell {
 		neighboursCausingDeathMax = 5;
 		neighboursCausingDeathMin = 0;
 		neighboursCausingBirthMax = 2;
-		neighboursCausingBirthMin = 2;
+		neighboursCausingBirthMin = 1;
 		
 		colour = Color.BLUE;
 		
